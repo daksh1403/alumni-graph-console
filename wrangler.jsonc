@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "alumni-graph-console",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-18",
+  "observability": { "enabled": true },
+  "vars": { "NEO4J_DATABASE": "neo4j" }
+}

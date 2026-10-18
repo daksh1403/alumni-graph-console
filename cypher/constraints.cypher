@@ -1,0 +1,15 @@
+CREATE CONSTRAINT department_identity IF NOT EXISTS FOR (n:Department) REQUIRE (n.DeptID) IS UNIQUE;
+CREATE CONSTRAINT batch_identity IF NOT EXISTS FOR (n:Batch) REQUIRE (n.BatchID) IS UNIQUE;
+CREATE CONSTRAINT company_identity IF NOT EXISTS FOR (n:Company) REQUIRE (n.CompanyID) IS UNIQUE;
+CREATE CONSTRAINT skill_identity IF NOT EXISTS FOR (n:Skill) REQUIRE (n.SkillID) IS UNIQUE;
+CREATE CONSTRAINT alumni_identity IF NOT EXISTS FOR (n:Alumni) REQUIRE (n.AlumniID) IS UNIQUE;
+CREATE CONSTRAINT student_identity IF NOT EXISTS FOR (n:Student) REQUIRE (n.StudentID) IS UNIQUE;
+CREATE CONSTRAINT event_identity IF NOT EXISTS FOR (n:Event) REQUIRE (n.EventID) IS UNIQUE;
+CREATE CONSTRAINT donation_identity IF NOT EXISTS FOR (n:Donation) REQUIRE (n.DonationID) IS UNIQUE;
+CREATE CONSTRAINT job_identity IF NOT EXISTS FOR (n:Job) REQUIRE (n.JobID) IS UNIQUE;
+CREATE CONSTRAINT mentorship_identity IF NOT EXISTS FOR (n:Mentorship) REQUIRE (n.AlumniID,n.MentorshipID) IS UNIQUE;
+CREATE CONSTRAINT alumni_email IF NOT EXISTS FOR (n:Alumni) REQUIRE n.Email IS UNIQUE;
+CREATE CONSTRAINT department_deptname IF NOT EXISTS FOR (n:Department) REQUIRE n.DeptName IS UNIQUE;
+CREATE CONSTRAINT department_deptcode IF NOT EXISTS FOR (n:Department) REQUIRE n.DeptCode IS UNIQUE;
+CREATE CONSTRAINT company_companyname IF NOT EXISTS FOR (n:Company) REQUIRE n.CompanyName IS UNIQUE;
+CREATE CONSTRAINT skill_skillname IF NOT EXISTS FOR (n:Skill) REQUIRE n.SkillName IS UNIQUE;
