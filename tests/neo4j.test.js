@@ -13,12 +13,16 @@ test('forwards parameters and server credentials without putting them in results
   assert.equal(request.url, 'https://example.databases.neo4j.io/db/neo4j/query/v2');
   assert.deepEqual(JSON.parse(request.options.body).parameters, {name:'Ada'});
   assert.match(request.options.headers.Authorization, /^Basic /);
+  assert.equal(request.options.redirect, 'manual', 'Workers supports manual redirect handling');
   assert.deepEqual(result.rows, [['Ada']]);
   assert.ok(!JSON.stringify(result).includes('test-password'));
 });
 test('Neo4j errors in an HTTP 202 response fail the query', async () => {
   assert.equal(typeof module.queryNeo4j, 'function');
   await assert.rejects(module.queryNeo4j(env, 'BAD', {}, {fetch:async()=>Response.json({errors:[{code:'Neo.ClientError.Statement.SyntaxError', message:'Invalid input'}]}, {status:202})}), /Invalid input/);
+});
+test('Neo4j errors returned with HTTP 400 retain their Cypher message',async()=>{
+  await assert.rejects(module.queryNeo4j(env,'CREATE',{}, {fetch:async()=>Response.json({errors:[{code:'Neo.ClientError.Schema.ConstraintValidationFailed',message:'Duplicate identity'}]},{status:400})}),error=>error.status===400&&error.message==='Duplicate identity');
 });
 test('extracts deduplicated graph entities from nested results', async () => {
   assert.equal(typeof module.queryNeo4j, 'function');
@@ -41,4 +45,10 @@ test('bounds returned rows and reports truncation', async () => {
   assert.equal(typeof module.queryNeo4j, 'function');
   const r=await module.queryNeo4j(env,'RETURN 1',{}, {maxRows:2, fetch:async()=>Response.json({data:{fields:['n'],values:[[1],[2],[3]]}})});
   assert.equal(r.rows.length,2); assert.equal(r.truncated,true);
+});
+test('rejects redirects without following them to another server', async()=>{
+  await assert.rejects(module.queryNeo4j(env,'RETURN 1',{}, {fetch:async(url,options)=>{
+    assert.equal(options.redirect,'manual');
+    return new Response(null,{status:302,headers:{Location:'https://another.example'}});
+  }}), /unsuccessful response/);
 });

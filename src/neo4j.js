@@ -31,13 +31,16 @@ export async function queryNeo4j(env, statement, parameters = {}, options = {}) 
   let response;
   try {
     response = await (options.fetch || fetch)(endpoint, {
-      method:'POST', redirect:'error', signal:AbortSignal.timeout(15000),
+      method:'POST', redirect:'manual', signal:AbortSignal.timeout(15000),
       headers:{'Content-Type':'application/json', Accept:'application/json', Authorization:'Basic '+btoa(String.fromCharCode(...new TextEncoder().encode(`${env.NEO4J_USERNAME}:${env.NEO4J_PASSWORD}`)))},
       body:JSON.stringify({statement, parameters, includeCounters:true, ...(options.readOnly ? {accessMode:'Read'} : {})})
     });
-  } catch { throw new GraphError('Neo4j could not be reached within the request deadline.',503,'UNAVAILABLE'); }
+  } catch(error) {
+    console.warn('Neo4j transport failed:', error.name, error.message);
+    throw new GraphError('Neo4j could not be reached within the request deadline.',503,'UNAVAILABLE');
+  }
   if (response.status === 401 || response.status === 403) throw new GraphError('Neo4j rejected the server credentials. Check Worker secrets.',503,'DATABASE_AUTH');
-  if (!response.ok) throw new GraphError('Neo4j returned an unsuccessful response.',502,'UPSTREAM_ERROR');
+  if (response.status >= 300 && response.status < 400) throw new GraphError('Neo4j returned an unsuccessful response.',502,'UPSTREAM_ERROR');
   let payload;
   try {
     const reader=response.body.getReader(), chunks=[]; let size=0;
@@ -51,7 +54,8 @@ export async function queryNeo4j(env, statement, parameters = {}, options = {}) 
     for(const chunk of chunks) {bytes.set(chunk,at); at+=chunk.length;}
     payload=JSON.parse(new TextDecoder().decode(bytes));
   } catch(error) {if(error instanceof GraphError) throw error; throw new GraphError('Neo4j returned an invalid or incomplete response.');}
-  if (payload.errors?.length) throw new GraphError(payload.errors.map(e=>e.message).join('; '),400,payload.errors[0].code || 'CYPHER_ERROR');
+  if (payload.errors?.length) throw new GraphError(payload.errors.map(e=>e.message).join('; '),response.status>=500?503:400,payload.errors[0].code || 'CYPHER_ERROR');
+  if (!response.ok) throw new GraphError('Neo4j returned an unsuccessful response.',502,'UPSTREAM_ERROR');
   if (!payload.data || !Array.isArray(payload.data.fields) || !Array.isArray(payload.data.values)) throw new GraphError('Neo4j response is missing result data.');
   const maxRows=options.maxRows || 500, rows=payload.data.values.slice(0,maxRows);
   return {ok:true, kind:payload.data.fields.length ? 'query':'execute', columns:payload.data.fields, rows, rowCount:rows.length, truncated:payload.data.values.length>maxRows, graph:graphFrom(rows), counters:payload.counters || {}, notifications:payload.notifications || [], elapsedMs:Date.now()-started};
