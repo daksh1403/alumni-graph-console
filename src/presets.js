@@ -12,7 +12,7 @@ export const presets = [
  {id:'jobs',title:'Jobs and company connections',category:'Careers',description:'Connect job postings to their company and alumni poster.',cypher:'MATCH (a:Alumni)-[r:POSTED]->(j:Job)-[t:AT_COMPANY]->(c:Company) RETURN a,r,j,t,c LIMIT 100',parameters:{}},
  {id:'departments',title:'Department communities',category:'People',description:'Explore alumni and students grouped by department.',cypher:'MATCH (p)-[r:IN_DEPARTMENT]->(d:Department) WHERE p:Alumni OR p:Student RETURN p,r,d LIMIT 100',parameters:{}},
  {id:'batches',title:'Graduation batches',category:'People',description:'Explore alumni connections through their batch.',cypher:'MATCH (a:Alumni)-[r:IN_BATCH]->(b:Batch) RETURN a,r,b LIMIT 100',parameters:{}},
- {id:'paths',title:'Find a connection path',category:'Graph',description:'Find a shortest connection between two alumni, within six hops.',cypher:'MATCH (a:Alumni {AlumniID:$from}),(b:Alumni {AlumniID:$to}),p=shortestPath((a)-[*1..6]-(b)) RETURN p LIMIT 1',parameters:{from:1,to:3}},
+ {id:'paths',title:'Find a connection path',category:'Graph',description:'Find a shortest connection between two alumni, within six hops.',cypher:'MATCH (a:Alumni {AlumniID:$from}),(b:Alumni {AlumniID:$to}),p=shortestPath((a)-[*1..6]-(b)) RETURN p LIMIT 1',parameters:{from:1,to:2}},
  {id:'skill-popularity',title:'Most common skills',category:'Skills',description:'Count the alumni connected to each skill.',cypher:'MATCH (s:Skill) OPTIONAL MATCH (a:Alumni)-[:HAS_SKILL]->(s) RETURN s.SkillName AS skill,count(a) AS alumni ORDER BY alumni DESC,skill LIMIT 100',parameters:{}}
 ];
 

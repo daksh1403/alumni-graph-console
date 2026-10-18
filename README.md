@@ -4,6 +4,11 @@ Neo4j graph backend for the Alumni Network & Engagement Platform. Runs on
 Cloudflare Workers and queries Neo4j through its HTTPS Query API. Uses Cypher;
 no JDBC and no D1 runtime binding.
 
+The live demonstration uses a reduced dataset: **22 nodes and 33 relationships**,
+with two records per node label except Batch and Skill, which have three. The
+original import was backed up privately before reduction. The 15 presets still
+demonstrate the graph's relationships using this smaller dataset.
+
 Repository: `daksh1403/alumni-graph-console`, branch `graph-backend`.
 This repository contains backend code only. The complete Cloudflare site also
 serves a separately maintained local `frontend/` directory, which is ignored by
@@ -84,6 +89,10 @@ nodes or relationships from earlier, different snapshots.
 endpoints, counts, and donation totals, then executes every preset. Run import
 and verification twice to check repeatability. The initial production snapshot
 maps 14 source tables to 52 nodes and 80 relationships.
+
+For the current reduced demo, validate against its retained source subset with
+`npm run verify -- private/reduced-data.json`. Running the original full import
+again restores the larger dataset and makes the display denser.
 
 ## API
 

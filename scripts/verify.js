@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {queryNeo4j} from '../src/neo4j.js';
 import {buildGraph,entities} from '../src/model.js';
 import {presets} from '../src/presets.js';
-const tables=JSON.parse(readFileSync('private/d1-data.json','utf8')), graph=buildGraph(tables);
+const tables=JSON.parse(readFileSync(process.argv[2] || 'private/d1-data.json','utf8')), graph=buildGraph(tables);
 const q=async(statement,parameters={})=>queryNeo4j(process.env,statement,parameters,{readOnly:true,maxRows:2000});
 const actualNodes=[];
 for(const [,[label,keys]] of Object.entries(entities)) {
